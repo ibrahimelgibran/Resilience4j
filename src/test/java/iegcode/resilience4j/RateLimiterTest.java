@@ -2,6 +2,7 @@ package iegcode.resilience4j;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,10 @@ public class RateLimiterTest {
                 .timeoutDuration(Duration.ofSeconds(2))
                 .build();
 
-        RateLimiter rateLimiter = RateLimiter.of("IEG", config);
+        RateLimiterRegistry registry = RateLimiterRegistry.ofDefaults();
+        registry.addConfiguration("config", config);
+
+        RateLimiter rateLimiter = registry.rateLimiter("IEG", "config");
 
         for (int i = 0; i < 10_000; i++) {
             Runnable runnable = RateLimiter.decorateRunnable(rateLimiter, () -> {
